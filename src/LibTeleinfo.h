@@ -35,6 +35,14 @@
 #define boolean bool
 #endif
 
+#ifdef ESP_PLATFORM
+#include <cstring>
+// The C++ standard for booleans is "bool" not "boolean"
+#define boolean bool
+// for time_t
+#include "time.h"
+#endif
+
 #ifdef ARDUINO
 #include <Arduino.h>
 #include <time.h>       /* struct tm */

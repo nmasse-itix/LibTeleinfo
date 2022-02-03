@@ -24,7 +24,10 @@
 //
 // **********************************************************************************
 
+#ifdef ARDUINO 
 #include "Arduino.h"
+#endif
+
 #include "LibTeleinfo.h" 
 
 /* ======================================================================
@@ -478,7 +481,7 @@ char * TInfo::valueGet_P(const char * name, char * value)
 {
   // Get our linked list 
   ValueList * me = &_valueslist;
-  uint8_t lgname = strlen_P(name);
+  uint8_t lgname = strlen(name);
 
   // Got one and all seems good ?
   if (me && lgname) {
@@ -490,7 +493,7 @@ char * TInfo::valueGet_P(const char * name, char * value)
       me = me->next;
 
       // Check if we match this LABEL
-      if (lgname==strlen(me->name) && strcmp_P(me->name, name)==0) {
+      if (lgname==strlen(me->name) && strcmp(me->name, name)==0) {
         // this one has a value ?
         if (me->value) {
           // copy to dest buffer
