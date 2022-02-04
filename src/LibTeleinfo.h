@@ -56,21 +56,17 @@
 // libraries
 #ifdef TI_DEBUG
   #ifdef ESP8266
-    #define TI_Debug(x)    Serial1.print(x)
-    #define TI_Debugln(x)  Serial1.println(x)
     #define TI_Debugf(...) Serial1.printf(__VA_ARGS__)
-    #define TI_Debugflush  Serial1.flush
+  #elif defined(ESP_PLATFORM)
+    #include <stdio.h>
+    #define TI_Debugf(...) { printf(__VA_ARGS__); printf("\n"); }
+    #define PSTR(x) x
+    #define F(x) x
   #else
-    #define TI_Debug(x)    Serial.print(x)
-    #define TI_Debugln(x)  Serial.println(x)
     #define TI_Debugf(...) Serial.printf(__VA_ARGS__)
-    #define TI_Debugflush  Serial.flush
   #endif
 #else
-  #define TI_Debug(x)    {}
-  #define TI_Debugln(x)  {}
   #define TI_Debugf(...) {}
-  #define TI_Debugflush  {}
 #endif
 
 // For 4 bytes Aligment boundaries

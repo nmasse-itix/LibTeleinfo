@@ -203,21 +203,7 @@ ValueList * TInfo::valueAdd(char * name, char * value, uint8_t checksum, uint8_t
   
   // just some paranoia 
   if (thischeck != checksum ) {
-    TI_Debug(name);
-    TI_Debug('=');
-    TI_Debug(value);
-
-    if (horodate && *horodate) {
-      TI_Debug(F(" Date="));
-      TI_Debug(horodate);
-      TI_Debug(F(" "));
-    }
-
-    TI_Debug(F(" '"));
-    TI_Debug((char) checksum);
-    TI_Debug(F("' Not added bad checksum calculated '"));
-    TI_Debug((char) thischeck);
-    TI_Debugln(F("'"));
+    TI_Debugf(F("%s=%s Date=%s '%c' Not added bad checksum calculated '%c'"), name, value, horodate && *horodate ? horodate : "NULL", checksum, thischeck);
     TI_Debugf(PSTR("LibTeleinfo::valueAdd Err checksum 0x%02X != 0x%02X"), thischeck, checksum);
 
   } else  {
@@ -321,13 +307,7 @@ ValueList * TInfo::valueAdd(char * name, char * value, uint8_t checksum, uint8_t
         newNode->flags = *flags;
       }
 
-      TI_Debug(F("Added '"));
-      TI_Debug(name);
-      TI_Debug('=');
-      TI_Debug(value);
-      TI_Debug(F("' '"));
-      TI_Debug((char) checksum);
-      TI_Debugln(F("'"));
+      TI_Debugf(F("Added '%s=%s' '%c'"), name, value, (char) checksum);
 
       // return pointer on the new node
       return (newNode);
@@ -540,43 +520,8 @@ uint8_t TInfo::valuesDump(void)
       me = me->next;
 
       index++;
-      TI_Debug(index) ;
-      TI_Debug(F(") ")) ;
 
-      if (me->name) {
-        TI_Debug(me->name) ;
-      } else {
-        TI_Debug(F("NULL")) ;
-      }
-
-      TI_Debug(F("=")) ;
-
-      if (me->value) {
-        TI_Debug(me->value) ;
-      } else {
-        TI_Debug(F("NULL")) ;
-      }
-
-      TI_Debug(F(" '")) ;
-      TI_Debug(me->checksum) ;
-      TI_Debug(F("' ")); 
-
-      // Flags management
-      if ( me->flags) {
-        TI_Debug(F("Flags:0x")); 
-        TI_Debugf("%02X =>", me->flags); 
-        if ( me->flags & TINFO_FLAGS_EXIST) {
-          TI_Debug(F("Exist ")) ;
-        }
-        if ( me->flags & TINFO_FLAGS_UPDATED) {
-          TI_Debug(F("Updated ")) ;
-        }
-        if ( me->flags & TINFO_FLAGS_ADDED) {
-          TI_Debug(F("New ")) ;
-        }
-      }
-
-      TI_Debugln() ;
+      TI_Debugf("%d) %s=%s '%c' Flags:0x%02X => %s %s %s", (int)index, me->name ? me->name : "NULL", me->value ? me->value : "NULL", me->checksum, me->flags, me->flags & TINFO_FLAGS_EXIST ? "Exist": "", me->flags & TINFO_FLAGS_UPDATED ? "Updated": "", me->flags & TINFO_FLAGS_ADDED ? "New" : "");
     }
   }
 
@@ -720,8 +665,7 @@ uint32_t TInfo::horodate2Timestamp( char * pdate)
   tm.tm_isdst = 0;
   ts = mktime(&tm);
   if (ts == (time_t)-1) {
-    TI_Debug(F("Failed to convert time "));
-    TI_Debugln(pdate);
+    TI_Debugf(F("Failed to convert time %s"), pdate);
     return 0;
   }
 
@@ -830,10 +774,6 @@ ValueList * TInfo::checkLine(char * pline)
   pts = NULL;
   checksum = 0;
 
-  //TI_Debug("Got [");
-  //TI_Debug(len);
-  //TI_Debug("] ");
-  
   // Loop in buffer 
   while ( p < pend ) {
     // start of token value
@@ -931,6 +871,7 @@ _State_e TInfo::process(char c)
   switch (c)  {
     // start of transmission ???
     case  TINFO_STX:
+      TI_Debugf(F("TINFO_GOT_STX"));
       //TI_Debugf(PSTR("LibTeleinfo: case TINFO_STX <<<<<<<<<<<<<<<<<<"));
       // Clear buffer, begin to store in it
       clearBuffer();
@@ -941,14 +882,14 @@ _State_e TInfo::process(char c)
 
       // We were waiting fo this one ?
       if (_state == TINFO_INIT || _state == TINFO_WAIT_STX ) {
-          TI_Debugln(F("TINFO_WAIT_ETX"));
+          TI_Debugf(F("TINFO_WAIT_ETX"));
          _state = TINFO_WAIT_ETX;
       } 
     break;
       
     // End of transmission ?
     case  TINFO_ETX:
-      TI_Debugln(F("TINFO_GOT_STX"));
+      TI_Debugf(F("TINFO_GOT_ETX"));
 
       // Normal working mode ?
       if (_state == TINFO_READY) {
@@ -973,11 +914,11 @@ _State_e TInfo::process(char c)
 
       // We were waiting fo this one ?
       if (_state == TINFO_WAIT_ETX) {
-        TI_Debugln(F("TINFO_READY"));
+        TI_Debugf(F("TINFO_READY"));
         _state = TINFO_READY;
       }
       else if ( _state == TINFO_INIT) {
-        TI_Debugln(F("TINFO_WAIT_STX"));
+        TI_Debugf(F("TINFO_WAIT_STX"));
         _state = TINFO_WAIT_STX ;
       }
 
